@@ -1,0 +1,11 @@
+name: stars_env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - tensorflow
+  - scikit-learn
+  - pip
+  - pip:
+      - pyqt6
