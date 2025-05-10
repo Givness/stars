@@ -80,8 +80,7 @@ class DataInputWidget(QWidget):
             except Exception as e:
                 QMessageBox.critical(self, "Ошибка классификации", str(e))
         else:
-            candidates, explanations = self.classifier.classify(input_data)
-            matches = self.classifier.matched_properties(input_data)
+            candidates, explanations, matches = self.classifier.classify(input_data)
             self.result_view.display_results(candidates, explanations, matches, self.kb.data["types"])
 
     def refresh(self):
