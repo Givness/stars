@@ -18,8 +18,7 @@ class StarClassifier:
 
                 if expected is None or given is None:
                     reasons.append(f"{prop} не указано")
-                    valid = False
-                    break
+                    continue
 
                 if self.kb.data["properties"][prop]["type"] == "числовой":
                     if expected[0] <= given <= expected[1]:

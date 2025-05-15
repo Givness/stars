@@ -1,4 +1,3 @@
-
 import tensorflow as tf
 from sklearn.preprocessing import LabelEncoder
 import numpy as np
@@ -21,28 +20,40 @@ X = []
 y = []
 
 samples_per_class = 2000
+missing_prob = 0.25
 
 for star_type, values in kb["values_by_type"].items():
     for _ in range(samples_per_class):
         sample = []
 
         for prop in numeric_props:
-            val_min, val_max = values[prop]
-            val = np.random.uniform(val_min, val_max)
-            global_min, global_max = kb["properties"][prop]["options"]
-            sample.append(normalize(val, global_min, global_max))
+            if np.random.rand() < missing_prob:
+                sample.append(0.5)
+                sample.append(0.0)
+            else:
+                val_min, val_max = values[prop]
+                val = np.random.uniform(val_min, val_max)
+                global_min, global_max = kb["properties"][prop]["options"]
+                norm = normalize(val, global_min, global_max)
+                sample.append(norm)
+                sample.append(1.0)
 
         for prop in enum_props:
-            val = np.random.choice(values[prop])
-            index = enum_options[prop].index(val) / (len(enum_options[prop]) - 1)
-            sample.append(index)
+            if np.random.rand() < missing_prob:
+                sample.append(0.5)
+                sample.append(0.0)
+            else:
+                val = np.random.choice(values[prop])
+                index = enum_options[prop].index(val) / (len(enum_options[prop]) - 1)
+                sample.append(index)
+                sample.append(1.0)
 
         X.append(sample)
         y.append(star_type)
 
+X = np.array(X)
 le = LabelEncoder()
 y_encoded = le.fit_transform(y)
-X = np.array(X)
 y_onehot = tf.keras.utils.to_categorical(y_encoded)
 
 model = tf.keras.Sequential([

@@ -23,17 +23,31 @@ class NeuralClassifier:
     def predict(self, features: dict):
         input_vector = []
 
+        # Числовые признаки
         for prop in self.numeric_props:
-            val = features[prop]
+            val = features.get(prop)
             min_val, max_val = self.numeric_ranges[prop]
-            norm = self.normalize(val, min_val, max_val)
-            input_vector.append(norm)
 
+            if val is None:
+                input_vector.append(0.5)  # заглушка
+                input_vector.append(0.0)  # отсутствует
+            else:
+                norm = self.normalize(val, min_val, max_val)
+                input_vector.append(norm)
+                input_vector.append(1.0)  # присутствует
+
+        # Перечислимые признаки
         for prop in self.enum_props:
-            val = features[prop]
+            val = features.get(prop)
             options = self.enum_options[prop]
-            index = options.index(val) / (len(options) - 1)
-            input_vector.append(index)
+
+            if val is None or val == "Не выбрано" or val not in options:
+                input_vector.append(0.5)
+                input_vector.append(0.0)
+            else:
+                index = options.index(val) / (len(options) - 1)
+                input_vector.append(index)
+                input_vector.append(1.0)
 
         x = np.array([input_vector])
         pred = self.model.predict(x, verbose=0)

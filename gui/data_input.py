@@ -42,6 +42,7 @@ class DataInputWidget(QWidget):
                 input_field.setPlaceholderText(f"{info['options'][0]} ... {info['options'][1]}")
             else:
                 input_field = QComboBox()
+                input_field.addItem("Не выбрано")
                 input_field.addItems(info["options"])
             self.inputs[prop] = input_field
             form_layout.addRow(QLabel(prop), input_field)
@@ -51,7 +52,7 @@ class DataInputWidget(QWidget):
         self.use_neural_checkbox = QCheckBox("Использовать нейросеть")
         self.container_layout.addWidget(self.use_neural_checkbox)
 
-        self.result_view = ResultOutputWidget()
+        self.result_view = ResultOutputWidget(self.kb)
         self.container_layout.addWidget(self.result_view)
 
         classify_button = QPushButton("Определить тип звезды")
@@ -64,12 +65,17 @@ class DataInputWidget(QWidget):
         for prop, widget in self.inputs.items():
             if isinstance(widget, QLineEdit):
                 val = widget.text().strip()
+                if val == "":
+                    continue
                 if not is_number(val):
                     QMessageBox.warning(self, "Ошибка", f"Значение свойства '{prop}' должно быть числом.")
                     return
                 input_data[prop] = to_float(val)
             else:
-                input_data[prop] = widget.currentText()
+                selected = widget.currentText()
+                if selected == "Не выбрано":
+                    continue
+                input_data[prop] = selected
 
         self.result_view.output.clear()
 
